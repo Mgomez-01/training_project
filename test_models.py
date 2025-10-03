@@ -227,14 +227,14 @@ def test_data_formats():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
         
-        # Save pattern
+        # Save pattern as text file (matching input format)
         pattern_file = tmpdir / "test_pattern.array"
-        pattern.tofile(pattern_file)
+        np.savetxt(pattern_file, pattern, fmt='%d')
         
         # Load pattern
-        loaded_pattern = np.fromfile(pattern_file, dtype=np.float32).reshape(48, 32)
+        loaded_pattern = np.loadtxt(pattern_file, dtype=np.float32)
         assert np.array_equal(pattern, loaded_pattern)
-        print(f"✓ Pattern file I/O successful")
+        print(f"✓ Pattern file I/O successful (text format)")
         
         # Save S-parameters
         pkl_file = tmpdir / "test_sparams.pkl"
