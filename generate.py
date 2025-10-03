@@ -158,11 +158,11 @@ class PatternGenerator:
         print(f"\nSaving {len(candidates)} patterns to {output_dir}/")
         
         for i, cand in enumerate(candidates):
-            pattern = cand['pattern'].astype(np.float32)
+            pattern = cand['pattern'].astype(np.int32)  # Convert to int for cleaner text output
             
-            # Save pattern array
+            # Save pattern array as space-separated text file (matching input format)
             filename = output_dir / f"{prefix}_{i:03d}_error_{cand['error']:.4f}.array"
-            pattern.tofile(filename)
+            np.savetxt(filename, pattern, fmt='%d')  # Save as integers with spaces
             
             # Save predicted S-parameters
             S_df = pd.DataFrame(
