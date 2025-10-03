@@ -183,8 +183,14 @@ def visualize_generation_results(output_dir, n_show=5):
     print(f"Visualizing top {len(pattern_files)} candidates from {output_dir}/")
     
     for i, pattern_file in enumerate(pattern_files):
-        # Load pattern
-        pattern = np.fromfile(pattern_file, dtype=np.float32).reshape(48, 32)
+        # Load pattern (text format)
+        try:
+            pattern = np.loadtxt(pattern_file, dtype=np.float32)
+            if pattern.ndim == 1:
+                pattern = pattern.reshape(48, 32)
+        except:
+            # Fallback to binary
+            pattern = np.fromfile(pattern_file, dtype=np.float32).reshape(48, 32)
         
         # Load S-parameters
         s_file = pattern_file.with_suffix('.pkl')
