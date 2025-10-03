@@ -34,10 +34,22 @@ def inspect_arrays(arrays_dir, n_samples=10):
     file_sizes = []
     
     for i, file_path in enumerate(array_files[:n_samples]):
-        data = np.fromfile(file_path, dtype=np.float32)
-        file_sizes.append(file_path.stat().st_size)
+        # Try loading as text file first
+        try:
+            data = np.loadtxt(file_path, dtype=np.float32)
+            if data.ndim == 2:
+                # Already has shape
+                shape = data.shape
+                data = data.flatten()
+            else:
+                data = data
+                shape = None
+        except:
+            # Fallback to binary
+            data = np.fromfile(file_path, dtype=np.float32)
+            shape = None
         
-        # Try to infer shape
+        file_sizes.append(file_path.stat().st_size)
         total_elements = len(data)
         if total_elements == 1536:  # 48*32
             shape = (48, 32)
