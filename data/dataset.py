@@ -56,8 +56,9 @@ class SimulationDataset(Dataset):
             all_S.append(S)
         
         all_S = np.concatenate(all_S, axis=0)
-        self.S_mean = all_S.mean(axis=0, keepdims=True)  # [1, 4]
-        self.S_std = all_S.std(axis=0, keepdims=True) + 1e-8
+        # IMPORTANT: Use float32 for PyTorch compatibility
+        self.S_mean = all_S.mean(axis=0, keepdims=True).astype(np.float32)  # [1, 4]
+        self.S_std = (all_S.std(axis=0, keepdims=True) + 1e-8).astype(np.float32)
         
         print(f"S-param normalization:")
         print(f"  Mean: {self.S_mean[0]}")
@@ -69,19 +70,31 @@ class SimulationDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.samples[idx]
         
-        # Load pattern (binary array)
-        pattern = np.fromfile(sample['array_path'], dtype=np.float32)
-        pattern = pattern.reshape(48, 32)  # Adjust if needed
-        pattern = pattern.astype(np.float32)  # Ensure binary {0, 1}
+        # Load pattern (space-separated text file)
+        try:
+            # Try loading as text file with space-separated values
+            pattern = np.loadtxt(sample['array_path'], dtype=np.float32)
+            # Should be shape (48, 32) already if file has proper line breaks
+            if pattern.ndim == 1:
+                # If it's flat, reshape it
+                pattern = pattern.reshape(48, 32)
+        except:
+            # Fallback: try binary format
+            pattern = np.fromfile(sample['array_path'], dtype=np.float32)
+            pattern = pattern.reshape(48, 32)
+        
+        # Ensure float32 and binary {0, 1}
+        pattern = pattern.astype(np.float32)
         
         # Load S-parameters
         df = pd.read_pickle(sample['data_path'])
         S_params = df[['S11 dB', 'S21 dB', 'S22 dB', 'S12 dB']].values  # [201, 4]
         S_params = S_params.astype(np.float32)
         
-        # Normalize S-parameters
+        # Normalize S-parameters (all float32)
         if self.normalize_S:
             S_params = (S_params - self.S_mean) / self.S_std
+            S_params = S_params.astype(np.float32)  # Ensure result is float32
         
         # Convert to torch tensors
         pattern = torch.from_numpy(pattern).unsqueeze(0)  # [1, 48, 32]
