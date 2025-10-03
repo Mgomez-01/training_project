@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyTorch
+*.pt
+*.pth
+*.ckpt
+
+# Checkpoints (except for documentation)
+checkpoints/
+*.tar.gz
+
+# Generated patterns
+generated_patterns/
+output/
+
+# Data (keep structure, ignore contents)
+data/arrays/*
+data/data/*
+!data/arrays/.gitkeep
+!data/data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+logs/
+tensorboard/
+
+# OS
+.DS_Store
+Thumbs.db
