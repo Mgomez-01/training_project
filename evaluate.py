@@ -172,7 +172,7 @@ def main():
         print("="*60)
         
         forward_model = ForwardModelResNet().to(device)
-        checkpoint = torch.load(args.forward_checkpoint, map_location=device)
+        checkpoint = torch.load(args.forward_checkpoint, map_location=device, weights_only=False)
         forward_model.load_state_dict(checkpoint['model_state_dict'])
         
         forward_metrics = evaluate_forward_model(forward_model, val_loader, device)
@@ -195,7 +195,7 @@ def main():
         print("Evaluating Inverse Model")
         print("="*60)
         
-        inv_checkpoint = torch.load(args.inverse_checkpoint, map_location=device)
+        inv_checkpoint = torch.load(args.inverse_checkpoint, map_location=device, weights_only=False)
         latent_dim = inv_checkpoint['config']['latent_dim']
         inverse_model = InversecVAE(latent_dim=latent_dim).to(device)
         inverse_model.load_state_dict(inv_checkpoint['model_state_dict'])
