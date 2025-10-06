@@ -36,7 +36,7 @@ class PatternGenerator:
         
         # Load normalization
         print(f"Loading normalization from: {normalization_file}")
-        norm = torch.load(normalization_file, map_location=self.device)
+        norm = torch.load(normalization_file, map_location=self.device, weights_only=False)
         self.S_mean = norm['S_mean']
         self.S_std = norm['S_std']
         print(f"  Mean: {self.S_mean[0]}")
@@ -44,7 +44,7 @@ class PatternGenerator:
         
         # Load inverse model
         print(f"\nLoading inverse model from: {inverse_checkpoint}")
-        inv_ckpt = torch.load(inverse_checkpoint, map_location=self.device)
+        inv_ckpt = torch.load(inverse_checkpoint, map_location=self.device, weights_only=False)
         latent_dim = inv_ckpt['config']['latent_dim']
         self.inverse_model = InversecVAE(latent_dim=latent_dim).to(self.device)
         self.inverse_model.load_state_dict(inv_ckpt['model_state_dict'])
@@ -56,7 +56,7 @@ class PatternGenerator:
         # Load forward model
         print(f"\nLoading forward model from: {forward_checkpoint}")
         self.forward_model = ForwardModelResNet().to(self.device)
-        fwd_ckpt = torch.load(forward_checkpoint, map_location=self.device)
+        fwd_ckpt = torch.load(forward_checkpoint, map_location=self.device, weights_only=False)
         self.forward_model.load_state_dict(fwd_ckpt['model_state_dict'])
         self.forward_model.eval()
         print(f"  Trained for {fwd_ckpt['epoch']+1} epochs")
