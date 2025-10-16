@@ -7,6 +7,8 @@ DATA_DIR := python/deep_archive/data/
 FORWARD_CKPT := checkpoints/forward/best_model.pt
 INVERSE_CKPT := checkpoints/inverse/best_model.pt
 DEVICE := cuda
+LR := 1e-2
+BATCH_SIZE := 64
 
 .PHONY: help install test inspect augment train-forward train-inverse train-all generate evaluate visualize tune clean
 
@@ -97,8 +99,9 @@ train-forward:
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
 		--epochs 100 \
-		--batch_size 32 \
-		--device $(DEVICE)
+		--batch_size 64 \
+		--device $(DEVICE)\
+		--lr $(LR)
 	@echo "✓ Forward model training complete!"
 
 train-inverse:
@@ -113,8 +116,9 @@ train-inverse:
 		--data_dir $(DATA_DIR) \
 		--forward_checkpoint $(FORWARD_CKPT) \
 		--epochs 200 \
-		--batch_size 32 \
-		--device $(DEVICE)
+		--batch_size $(BATCH_SIZE) \
+		--device $(DEVICE)\
+		--lr $(LR)
 	@echo "✓ Inverse model training complete!"
 
 train-all: train-forward train-inverse
@@ -178,7 +182,10 @@ tune:
 		--data_dir $(DATA_DIR) \
 		--forward_checkpoint $(FORWARD_CKPT) \
 		--n_epochs 10 \
-		--device $(DEVICE)
+		--device $(DEVICE)\
+		--batch_size $(BATCH_SIZE)\
+		--kl_weights 0.00001 0.0001 0.001 0.01 0.1\
+		--forward_weights 1 2 4 8
 	@echo "✓ Hyperparameter tuning complete! See tuning_results.json"
 
 clean:
@@ -192,14 +199,20 @@ clean:
 
 clean-all: clean
 	@echo "Cleaning checkpoints (this will delete trained models)..."
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		rm -rf checkpoints/*; \
-		echo "✓ All checkpoints deleted!"; \
-	else \
-		echo "Cancelled."; \
-	fi
+	@bash -c '\
+		read -p "Are you sure? [y/N] " -n 1 -r; \
+		echo; \
+		if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+			rm -rf checkpoints/*; \
+			echo "✓ All checkpoints deleted!"; \
+		else \
+			echo "Cancelled."; \
+		fi \
+	'
+	rm python/deep_archive/data/*flipped*;
+	rm python/deep_archive/arrays/*flipped*;
+	rm -rf python/deep_archive/data/_augmented;
+	rm -rf python/deep_archive/arrays/_augmented
 
 # Quick workflow
 workflow: inspect train-all evaluate
