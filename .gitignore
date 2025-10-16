@@ -61,3 +61,9 @@ tensorboard/
 # OS
 .DS_Store
 Thumbs.db
+
+# flipped data
+python/deep_archive/arrays/*flipped*
+python/deep_archive/data/*_flipped_*
+python/deep_archive/arrays/_augmented/
+python/deep_archive/data/_augmented/
