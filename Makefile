@@ -7,8 +7,22 @@ DATA_DIR := python/deep_archive/data/
 FORWARD_CKPT := checkpoints/forward/best_model.pt
 INVERSE_CKPT := checkpoints/inverse/best_model.pt
 DEVICE := cuda
+
+# modify these values for the training. kl_weight and forward_weight come from the best resulting
+# tuned params from tune_hyperparams.py
+
+KL_WEIGHT := 1e-5
+FORWARD_WEIGHT := 1.0
 LR := 1e-2
-BATCH_SIZE := 64
+
+FORWARD_EPOCHS := 100
+FORWARD_BATCH_SIZE := 64
+
+INVERSE_EPOCHS := 100
+INVERSE_BATCH_SIZE := 64
+
+HYPER_BATCH_SIZE := 64
+
 
 .PHONY: help install test inspect augment train-forward train-inverse train-all generate evaluate visualize tune clean
 
@@ -98,8 +112,8 @@ train-forward:
 	python train_forward.py \
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
-		--epochs 100 \
-		--batch_size 64 \
+		--epochs $(FORWARD_EPOCHS) \
+		--batch_size $(FORWARD_BATCH_SIZE) \
 		--device $(DEVICE)\
 		--lr $(LR)
 	@echo "✓ Forward model training complete!"
@@ -111,14 +125,18 @@ train-inverse:
 		echo "Please run 'make train-forward' first"; \
 		exit 1; \
 	fi
+	rm checkpoints/inverse/best_model.pt
 	python train_inverse.py \
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
 		--forward_checkpoint $(FORWARD_CKPT) \
-		--epochs 200 \
-		--batch_size $(BATCH_SIZE) \
+		--epochs $(INVERSE_EPOCHS) \
+		--batch_size $(INVERSE_BATCH_SIZE) \
 		--device $(DEVICE)\
-		--lr $(LR)
+		--lr $(LR)\
+		--kl_weight $(KL_WEIGHT)\
+		--forward_weight $(FORWARD_WEIGHT)
+
 	@echo "✓ Inverse model training complete!"
 
 train-all: train-forward train-inverse
@@ -183,7 +201,7 @@ tune:
 		--forward_checkpoint $(FORWARD_CKPT) \
 		--n_epochs 10 \
 		--device $(DEVICE)\
-		--batch_size $(BATCH_SIZE)\
+		--batch_size $(HYPER_BATCH_SIZE)\
 		--kl_weights 0.00001 0.0001 0.001 0.01 0.1\
 		--forward_weights 1 2 4 8
 	@echo "✓ Hyperparameter tuning complete! See tuning_results.json"
