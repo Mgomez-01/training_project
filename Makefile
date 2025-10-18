@@ -12,16 +12,16 @@ DEVICE := cuda
 # tuned params from tune_hyperparams.py
 
 KL_WEIGHT := 1e-05
-FORWARD_WEIGHT := 1.0
-LR := 1e-02
+FORWARD_WEIGHT := .01
+LR := 1.5e-02
 
-FORWARD_EPOCHS := 150
-FORWARD_BATCH_SIZE := 32
+FORWARD_EPOCHS := 20
+FORWARD_BATCH_SIZE := 64
 
-INVERSE_EPOCHS := 300
-INVERSE_BATCH_SIZE := 32
+INVERSE_EPOCHS := 50
+INVERSE_BATCH_SIZE := 64
 
-HYPER_BATCH_SIZE := 32
+HYPER_BATCH_SIZE := 64
 
 
 .PHONY: help install test inspect augment train-forward train-inverse train-all generate evaluate visualize tune clean
