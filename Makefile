@@ -15,13 +15,13 @@ KL_WEIGHT := 1e-05
 FORWARD_WEIGHT := 1.0
 LR := 1e-02
 
-FORWARD_EPOCHS := 100
-FORWARD_BATCH_SIZE := 64
+FORWARD_EPOCHS := 150
+FORWARD_BATCH_SIZE := 32
 
-INVERSE_EPOCHS := 200
-INVERSE_BATCH_SIZE := 64
+INVERSE_EPOCHS := 300
+INVERSE_BATCH_SIZE := 32
 
-HYPER_BATCH_SIZE := 64
+HYPER_BATCH_SIZE := 32
 
 
 .PHONY: help install test inspect augment train-forward train-inverse train-all generate evaluate visualize tune clean
@@ -125,7 +125,6 @@ train-inverse:
 		echo "Please run 'make train-forward' first"; \
 		exit 1; \
 	fi
-	rm checkpoints/inverse/best_model.pt
 	python train_inverse.py \
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
