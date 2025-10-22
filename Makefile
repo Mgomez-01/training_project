@@ -13,12 +13,12 @@ DEVICE := cuda
 
 KL_WEIGHT := 1e-05
 FORWARD_WEIGHT := .01
-LR := 1.5e-02
+LR := 1e-01
 
-FORWARD_EPOCHS := 20
+FORWARD_EPOCHS := 10
 FORWARD_BATCH_SIZE := 64
 
-INVERSE_EPOCHS := 50
+INVERSE_EPOCHS := 10
 INVERSE_BATCH_SIZE := 64
 
 HYPER_BATCH_SIZE := 64
@@ -198,11 +198,11 @@ tune:
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
 		--forward_checkpoint $(FORWARD_CKPT) \
-		--n_epochs 10 \
+		--n_epochs 2 \
 		--device $(DEVICE)\
 		--batch_size $(HYPER_BATCH_SIZE)\
-		--kl_weights 0.00001 0.0001 0.001 0.01 0.1\
-		--forward_weights 1 2 4 8
+		--kl_weights 0.000001 0.00001 \
+		--forward_weights 0.01 0.1 1
 	@echo "✓ Hyperparameter tuning complete! See tuning_results.json"
 
 clean:
@@ -248,3 +248,18 @@ workflow-augmented: inspect augment train-all evaluate visualize
 	@echo "Trained with 2x dataset (augmented)"
 	@echo "Ready to generate patterns!"
 	@echo "  make generate TARGET=your_target.pkl"
+
+store-new-archive:
+	@echo ""
+	@echo "============================================"
+	@echo "== Storing all new files from pixfilt dir =="
+	@echo "============================================"
+	cp ../../coursework/pixfilt/python/deep_archive/arrays/* ./python/deep_archive/arrays/
+	cp ../../coursework/pixfilt/python/deep_archive/data/* ./python/deep_archive/data/
+	git add python/deep_archive
+	git commit -m "updating files in archive"
+	git push
+	@echo "============================================"
+	@echo "==== Completed update of training data ====="
+	@echo "============================================"
+
