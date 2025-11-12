@@ -11,14 +11,14 @@ DEVICE := cuda
 # modify these values for the training. kl_weight and forward_weight come from the best resulting
 # tuned params from tune_hyperparams.py
 
-KL_WEIGHT := 1e-05
-FORWARD_WEIGHT := .01
-LR := 1e-01
+KL_WEIGHT := 1e-06
+FORWARD_WEIGHT := .0005
+LR := 1e-03
 
-FORWARD_EPOCHS := 10
+FORWARD_EPOCHS := 250
 FORWARD_BATCH_SIZE := 64
 
-INVERSE_EPOCHS := 10
+INVERSE_EPOCHS := 250
 INVERSE_BATCH_SIZE := 64
 
 HYPER_BATCH_SIZE := 64
@@ -165,8 +165,8 @@ generate:
 		--inverse_checkpoint $(INVERSE_CKPT) \
 		--forward_checkpoint $(FORWARD_CKPT) \
 		--normalization_file checkpoints/forward/normalization.pt \
-		--n_candidates 50 \
-		--top_k 10 \
+		--n_candidates 150 \
+		--top_k 20 \
 		--device $(DEVICE)
 	@echo "✓ Pattern generation complete!"
 
@@ -184,7 +184,7 @@ visualize:
 	@echo "Visualizing generated patterns..."
 	python visualize.py \
 		--output_dir generated_patterns \
-		--n_show 10
+		--n_show 2
 	@echo "✓ Visualizations saved to generated_patterns/"
 
 tune:
@@ -198,11 +198,11 @@ tune:
 		--arrays_dir $(ARRAYS_DIR) \
 		--data_dir $(DATA_DIR) \
 		--forward_checkpoint $(FORWARD_CKPT) \
-		--n_epochs 2 \
+		--n_epochs 25 \
 		--device $(DEVICE)\
 		--batch_size $(HYPER_BATCH_SIZE)\
 		--kl_weights 0.000001 0.00001 \
-		--forward_weights 0.01 0.1 1
+		--forward_weights 0.001 0.01 .1
 	@echo "✓ Hyperparameter tuning complete! See tuning_results.json"
 
 clean:

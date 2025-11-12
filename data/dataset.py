@@ -136,6 +136,7 @@ def get_dataloaders(arrays_dir, data_dir, batch_size=32, train_split=0.8, num_wo
         batch_size=batch_size, 
         shuffle=True, 
         num_workers=num_workers,
+        persistent_workers=True,
         pin_memory=True
     )
     val_loader = DataLoader(
@@ -143,6 +144,7 @@ def get_dataloaders(arrays_dir, data_dir, batch_size=32, train_split=0.8, num_wo
         batch_size=batch_size, 
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
         pin_memory=True
     )
     
